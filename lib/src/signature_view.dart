@@ -38,11 +38,14 @@ class HandSignaturePainterView extends StatelessWidget {
     return ClipRRect(
       child: RawGestureDetector(
         gestures: <Type, GestureRecognizerFactory>{
-          _SinglePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<_SinglePanGestureRecognizer>(
+          _SinglePanGestureRecognizer:
+              GestureRecognizerFactoryWithHandlers<_SinglePanGestureRecognizer>(
             () => _SinglePanGestureRecognizer(debugOwner: this),
             (PanGestureRecognizer instance) {
-              instance.onStart = (args) => control.startPath(args.localPosition);
-              instance.onUpdate = (args) => control.alterPath(args.localPosition);
+              instance.onStart =
+                  (args) => control.startPath(args.localPosition);
+              instance.onUpdate =
+                  (args) => control.alterPath(args.localPosition);
               instance.onEnd = (args) => control.closePath();
             },
           ),
@@ -206,7 +209,8 @@ class _HandSignatureViewSvgState extends State<_HandSignatureViewSvg> {
 /// Custom [PanGestureRecognizer] that handles just one input touch.
 /// Don't allow multi touch.
 class _SinglePanGestureRecognizer extends PanGestureRecognizer {
-  _SinglePanGestureRecognizer({Object debugOwner}) : super(debugOwner: debugOwner);
+  _SinglePanGestureRecognizer({Object debugOwner})
+      : super(debugOwner: debugOwner);
 
   bool isDown = false;
 
