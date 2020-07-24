@@ -64,18 +64,23 @@ class HandSignaturePainterView extends StatelessWidget {
     return ClipRRect(
       child: RawGestureDetector(
         gestures: <Type, GestureRecognizerFactory>{
-          TapGestureRecognizer: GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+          TapGestureRecognizer:
+              GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
             () => TapGestureRecognizer(debugOwner: this),
             (instance) {
-              instance.onTapDown = (args) => _startPath(null, args.localPosition);
+              instance.onTapDown =
+                  (args) => _startPath(null, args.localPosition);
               instance.onTapUp = (args) => _endPath(null);
             },
           ),
-          _SinglePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<_SinglePanGestureRecognizer>(
+          _SinglePanGestureRecognizer:
+              GestureRecognizerFactoryWithHandlers<_SinglePanGestureRecognizer>(
             () => _SinglePanGestureRecognizer(debugOwner: this),
             (instance) {
-              instance.onStart = (args) => _startPath(instance, args.localPosition);
-              instance.onUpdate = (args) => control.alterPath(args.localPosition);
+              instance.onStart =
+                  (args) => _startPath(instance, args.localPosition);
+              instance.onUpdate =
+                  (args) => control.alterPath(args.localPosition);
               instance.onEnd = (args) => _endPath(instance);
             },
           ),
@@ -239,7 +244,8 @@ class _HandSignatureViewSvgState extends State<_HandSignatureViewSvg> {
 /// Custom [PanGestureRecognizer] that handles just one input touch.
 /// Don't allow multi touch.
 class _SinglePanGestureRecognizer extends PanGestureRecognizer {
-  _SinglePanGestureRecognizer({Object debugOwner}) : super(debugOwner: debugOwner);
+  _SinglePanGestureRecognizer({Object debugOwner})
+      : super(debugOwner: debugOwner);
 
   bool isDown = false;
 
