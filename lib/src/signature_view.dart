@@ -23,6 +23,12 @@ class HandSignaturePainterView extends StatelessWidget {
   /// Path type.
   final SignatureDrawType type;
 
+  /// Callback when path drawing starts.
+  final VoidCallback onPointerDown;
+
+  /// Callback when path drawing ends.
+  final VoidCallback onPointerUp;
+
   /// Draws [Path] based on input and stores data in [control].
   HandSignaturePainterView({
     Key key,
@@ -31,22 +37,46 @@ class HandSignaturePainterView extends StatelessWidget {
     this.width: 1.0,
     this.maxWidth: 10.0,
     this.type: SignatureDrawType.shape,
+    this.onPointerDown,
+    this.onPointerUp,
   }) : super(key: key);
+
+  void _startPath(_SinglePanGestureRecognizer instance, Offset point) {
+    instance?.isDown = true;
+
+    if (!control.hasActivePath) {
+      onPointerDown?.call();
+      control.startPath(point);
+    }
+  }
+
+  void _endPath(_SinglePanGestureRecognizer instance) {
+    if (control.hasActivePath) {
+      control.closePath();
+      onPointerUp?.call();
+    }
+
+    instance?.isDown = false;
+  }
 
   @override
   Widget build(BuildContext context) {
     return ClipRRect(
       child: RawGestureDetector(
         gestures: <Type, GestureRecognizerFactory>{
-          _SinglePanGestureRecognizer:
-              GestureRecognizerFactoryWithHandlers<_SinglePanGestureRecognizer>(
+          TapGestureRecognizer: GestureRecognizerFactoryWithHandlers<TapGestureRecognizer>(
+            () => TapGestureRecognizer(debugOwner: this),
+            (instance) {
+              instance.onTapDown = (args) => _startPath(null, args.localPosition);
+              instance.onTapUp = (args) => _endPath(null);
+            },
+          ),
+          _SinglePanGestureRecognizer: GestureRecognizerFactoryWithHandlers<_SinglePanGestureRecognizer>(
             () => _SinglePanGestureRecognizer(debugOwner: this),
-            (PanGestureRecognizer instance) {
-              instance.onStart =
-                  (args) => control.startPath(args.localPosition);
-              instance.onUpdate =
-                  (args) => control.alterPath(args.localPosition);
-              instance.onEnd = (args) => control.closePath();
+            (instance) {
+              instance.onStart = (args) => _startPath(instance, args.localPosition);
+              instance.onUpdate = (args) => control.alterPath(args.localPosition);
+              instance.onEnd = (args) => _endPath(instance);
             },
           ),
         },
@@ -209,8 +239,7 @@ class _HandSignatureViewSvgState extends State<_HandSignatureViewSvg> {
 /// Custom [PanGestureRecognizer] that handles just one input touch.
 /// Don't allow multi touch.
 class _SinglePanGestureRecognizer extends PanGestureRecognizer {
-  _SinglePanGestureRecognizer({Object debugOwner})
-      : super(debugOwner: debugOwner);
+  _SinglePanGestureRecognizer({Object debugOwner}) : super(debugOwner: debugOwner);
 
   bool isDown = false;
 
@@ -220,10 +249,11 @@ class _SinglePanGestureRecognizer extends PanGestureRecognizer {
       return;
     }
 
-    isDown = true;
+    //isDown = true;
     super.addAllowedPointer(event);
   }
 
+/*
   @override
   void handleEvent(PointerEvent event) {
     super.handleEvent(event);
@@ -231,5 +261,5 @@ class _SinglePanGestureRecognizer extends PanGestureRecognizer {
     if (!event.down) {
       isDown = false;
     }
-  }
+  }*/
 }

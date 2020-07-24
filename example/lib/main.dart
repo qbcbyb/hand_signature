@@ -2,6 +2,7 @@ import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
 import 'package:hand_signature/signature.dart';
+import 'package:signature_example/scroll_test.dart';
 
 void main() => runApp(MyApp());
 
@@ -16,6 +17,8 @@ ValueNotifier<String> svg = ValueNotifier<String>(null);
 ValueNotifier<ByteData> rawImage = ValueNotifier<ByteData>(null);
 
 class MyApp extends StatelessWidget {
+  bool get scrollTest => false;
+
   // This widget is the root of your application.
   @override
   Widget build(BuildContext context) {
@@ -26,79 +29,81 @@ class MyApp extends StatelessWidget {
       ),
       home: Scaffold(
         backgroundColor: Colors.orange,
-        body: SafeArea(
-          child: Stack(
-            children: <Widget>[
-              Column(
-                children: <Widget>[
-                  Expanded(
-                    child: Center(
-                      child: AspectRatio(
-                        aspectRatio: 2.0,
-                        child: Stack(
-                          children: <Widget>[
-                            Container(
-                              constraints: BoxConstraints.expand(),
-                              color: Colors.white,
-                              child: HandSignaturePainterView(
-                                control: control,
-                                type: SignatureDrawType.shape,
+        body: scrollTest
+            ? ScrollTest()
+            : SafeArea(
+                child: Stack(
+                  children: <Widget>[
+                    Column(
+                      children: <Widget>[
+                        Expanded(
+                          child: Center(
+                            child: AspectRatio(
+                              aspectRatio: 2.0,
+                              child: Stack(
+                                children: <Widget>[
+                                  Container(
+                                    constraints: BoxConstraints.expand(),
+                                    color: Colors.white,
+                                    child: HandSignaturePainterView(
+                                      control: control,
+                                      type: SignatureDrawType.shape,
+                                    ),
+                                  ),
+                                  CustomPaint(
+                                    painter: DebugSignaturePainterCP(
+                                      control: control,
+                                      cp: false,
+                                      cpStart: false,
+                                      cpEnd: false,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
-                            CustomPaint(
-                              painter: DebugSignaturePainterCP(
-                                control: control,
-                                cp: false,
-                                cpStart: false,
-                                cpEnd: false,
-                              ),
+                          ),
+                        ),
+                        Row(
+                          children: <Widget>[
+                            RaisedButton(
+                              onPressed: control.clear,
+                              child: Text('clear'),
+                            ),
+                            RaisedButton(
+                              onPressed: () async {
+                                svg.value = control.toSvg(
+                                  color: Colors.blueGrey,
+                                  size: 2.0,
+                                  maxSize: 15.0,
+                                  type: SignatureDrawType.shape,
+                                );
+
+                                rawImage.value = await control.toImage(
+                                  color: Colors.blueAccent,
+                                );
+                              },
+                              child: Text('export'),
                             ),
                           ],
                         ),
+                        SizedBox(
+                          height: 16.0,
+                        ),
+                      ],
+                    ),
+                    Align(
+                      alignment: Alignment.bottomRight,
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        children: <Widget>[
+                          _buildImageView(),
+                          _buildSvgView(),
+                        ],
                       ),
                     ),
-                  ),
-                  Row(
-                    children: <Widget>[
-                      RaisedButton(
-                        onPressed: control.clear,
-                        child: Text('clear'),
-                      ),
-                      RaisedButton(
-                        onPressed: () async {
-                          svg.value = control.toSvg(
-                            color: Colors.blueGrey,
-                            size: 2.0,
-                            maxSize: 15.0,
-                            type: SignatureDrawType.arc,
-                          );
-
-                          rawImage.value = await control.toImage(
-                            color: Colors.blueAccent,
-                          );
-                        },
-                        child: Text('export'),
-                      ),
-                    ],
-                  ),
-                  SizedBox(
-                    height: 16.0,
-                  ),
-                ],
-              ),
-              Align(
-                alignment: Alignment.bottomRight,
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: <Widget>[
-                    _buildImageView(),
-                    _buildSvgView(),
                   ],
                 ),
               ),
-            ],
-          ),
-        ),
       ),
     );
   }

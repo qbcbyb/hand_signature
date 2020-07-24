@@ -1120,9 +1120,9 @@ class HandSignatureControl extends ChangeNotifier {
 
   @override
   void dispose() {
-    super.dispose();
-
-    clear();
+    _paths.clear();
     _activePath = null;
+
+    super.dispose();
   }
 }
