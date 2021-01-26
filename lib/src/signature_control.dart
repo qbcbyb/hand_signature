@@ -961,7 +961,7 @@ class HandSignatureControl extends ChangeNotifier {
   }
 
   /// Exports data to [Picture].
-  Picture toPicture({int width: 512, int height: 256, Color color, double size, double maxSize, double border}) {
+  Picture toPicture({int width: 512, int height: 256, Color color, Color backgroundColor, double size, double maxSize, double border}) {
     final data = PathUtil.fill(_arcs, Rect.fromLTRB(0.0, 0.0, width.toDouble(), height.toDouble()), border: border);
     final path = CubicPath().._arcs.addAll(data);
 
@@ -991,6 +991,9 @@ class HandSignatureControl extends ChangeNotifier {
         Offset(width.toDouble(), height.toDouble()),
       ),
     );
+    if (backgroundColor != null) {
+      canvas.drawColor(backgroundColor, BlendMode.color);
+    }
 
     painter.paint(canvas, Size(width.toDouble(), height.toDouble()));
 
@@ -998,11 +1001,12 @@ class HandSignatureControl extends ChangeNotifier {
   }
 
   /// Exports data to raw image.
-  Future<ByteData> toImage({int width: 512, int height: 256, Color color, double size, double maxSize, double border, ImageByteFormat format: ImageByteFormat.png}) async {
+  Future<ByteData> toImage({int width: 512, int height: 256, Color color, Color backgroundColor, double size, double maxSize, double border, ImageByteFormat format: ImageByteFormat.png}) async {
     final image = await toPicture(
       width: width,
       height: height,
       color: color,
+      backgroundColor: backgroundColor, 
       size: size,
       maxSize: maxSize,
       border: border,
